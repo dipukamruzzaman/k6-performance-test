@@ -1,0 +1,46 @@
+# docker-compose.yml
+# FinanceQA K6 — Real-time Performance Dashboard
+# Services: InfluxDB (metrics storage) + Grafana (visualization)
+
+version: '3.8'
+
+services:
+
+  # ── InfluxDB — stores K6 metrics ──────────────────────────────
+  influxdb:
+    image: influxdb:1.8
+    container_name: financeqa-influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=k6
+      - INFLUXDB_HTTP_AUTH_ENABLED=false
+    volumes:
+      - influxdb-data:/var/lib/influxdb
+    networks:
+      - k6-network
+
+  # ── Grafana — visualizes metrics from InfluxDB ─────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: financeqa-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - influxdb
+    networks:
+      - k6-network
+
+networks:
+  k6-network:
+    driver: bridge
+
+volumes:
+  influxdb-data:
+  grafana-data:

@@ -1,3 +1,4 @@
 node_modules/
 reports/summary.html
 *.log
+!dashboards/
